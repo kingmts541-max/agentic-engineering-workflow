@@ -1,49 +1,61 @@
 # Agentic Engineering Workflow
 
-A tool-agnostic, approval-gated workflow for using coding agents on real software projects.
+A tool-agnostic, approval-gated workflow for coding agents. It combines flexible phase selection with durable project state, explicit architectural decisions, acceptance criteria, and honest verification.
 
-The goal is to make agents useful without letting them silently expand scope, invent product decisions, weaken security, or claim work is verified when it is not.
+The goal is to make agents useful without letting them silently expand scope, invent product decisions, or claim work is verified when it is not.
 
-## Workflow
+## Core phases
 
-**Audit → Scope → Architect (when needed) → Approve → Develop → Verify → Test → Review → Document → Sync**
+**Scope → Audit (brownfield) → Architect → Develop → Check/Verify → Test → Review → Document → Sync**
 
-Debugging can be invoked at any stage. Not every task needs every phase: a typo may need only scope, change, and verification; a risky architectural change should use the full sequence.
+This is a map, not a mandatory checklist. Audit first when entering an existing codebase; for greenfield work, scope first, make load-bearing decisions, scaffold, and then audit the real project. `debug` can be used at any point. Skip phases that do not add value for a particular change.
 
-## Principles
+## What makes the workflow useful
 
-- **One source of truth:** project-specific instructions and docs in the target repository override generic examples here.
-- **Inspect before changing:** audit unfamiliar or existing code before proposing modifications.
-- **Approval gates:** ask before material scope changes, consequential architecture decisions, destructive operations, migrations, or security-sensitive trade-offs.
-- **Verify claims:** report commands run, results, and limitations. Never claim tests passed if they were not run.
-- **Minimal changes:** solve the requested problem without unrelated refactors.
-- **No implicit publishing:** do not commit, push, deploy, or open external resources unless explicitly authorized.
-- **Security first:** never expose secrets, weaken controls to make tests pass, or use real customer/payment data in unsafe environments.
-- **Durable handoffs:** record decisions, remaining risks, and next steps in repository docs or the final response.
+- **Persistent state:** scope, specs, and reviews live in repository files, not only in chat.
+- **Specs as contracts:** non-trivial designs record numbered acceptance criteria and decision status.
+- **No invented decisions:** implementation pauses when a missing decision materially affects behavior, security, data, or compatibility.
+- **Separate verification and review:** verify checks actual behavior against acceptance criteria; review independently inspects the diff and does not edit code.
+- **Flexible depth:** Prototype, Alpha, Beta, and GA suggest increasing levels of verification, testing, review, and documentation without making every task follow every phase.
+- **Sync:** reconcile scope, spec statuses, context instructions, and code after work.
+- **Approval gates:** no consequential actions or publishing without permission.
 
-## Repository layout
+## Suggested repository layout
 
-- `AGENTS.md` — general agent policy for repositories that adopt this workflow.
-- `CLAUDE.md` — Claude Code entry point importing the shared policy.
-- `AGENTIC_WORKFLOW.md` — full lifecycle and approval rules.
-- `agents/` — focused role prompts.
-- `skills/` — reusable phase instructions.
-- `adapters/` — tool-specific setup notes and command mappings.
-- `templates/` — reusable planning and review artifacts.
+- `AGENTS.md` — shared agent policy.
+- `CLAUDE.md` — Claude Code entry point.
+- `AGENTIC_WORKFLOW.md` — lifecycle, artifact ownership, and approval rules.
+- `skills/` — focused instructions for each phase.
+- `adapters/` — tool-specific setup notes and mappings.
+- `templates/` — reusable scope, spec, and review templates.
+- `docs/scope/` — living scope and progress for an adopting project.
+- `docs/specs/` — proposed and approved implementation specs.
+- `docs/reviews/` — independent review findings.
+
+Adopting projects should create these state directories only when useful and should preserve their own conventions rather than blindly replacing existing instructions.
 
 ## Quick start
 
-1. Read `AGENTIC_WORKFLOW.md` and the relevant skill.
-2. In a new or unfamiliar repository, run the **audit** phase first.
-3. Define a small, testable scope before editing.
-4. Agree on consequential design decisions before implementation.
-5. Verify the change with relevant checks and tests.
-6. Review the diff for correctness, security, regressions, and scope.
-7. Document what changed and what remains unverified.
+1. Read `AGENTIC_WORKFLOW.md` and existing project instructions.
+2. For a brownfield project, audit the repository before scoping the next slice.
+3. Write a bounded scope with acceptance criteria, non-goals, risks, and an appropriate workflow depth.
+4. For non-trivial work, create a spec with numbered acceptance criteria and mark consequential decisions as proposed until approved.
+5. Implement only the agreed scope. Pause rather than inventing a consequential decision.
+6. Verify actual behavior, run appropriate tests, and independently review according to risk.
+7. Sync scope/spec/context status with the real code and provide an honest handoff.
 
-## Adopting this workflow
+## Workflow depth
 
-Copy or adapt the policy and relevant skills into your project. Preserve existing project-specific instructions; merge carefully rather than replacing them. Tool adapters are guidance, not a promise that every tool version supports identical behavior.
+- **Prototype:** focused implementation plus self-check.
+- **Alpha:** runtime verification against acceptance criteria.
+- **Beta:** automated tests for changed behavior and relevant edge cases.
+- **GA:** independent review and documentation/handoff in addition to the above.
+
+These are defaults, not rigid release stages. The user decides whether the work is done.
+
+## Tool compatibility
+
+The workflow is tool-agnostic, but agent tools differ in their command syntax, subagent support, permissions, and context-file behavior. Treat adapter docs as guidance and verify them against the installed tool version; do not assume commands are portable verbatim.
 
 ## License
 
