@@ -1,0 +1,3 @@
+# Review state
+
+Store independent review reports for substantial changes in this directory, using `../../templates/review.md` as a starting point. Reviews should be read-only and preferably performed by a different model/agent from the implementer. Record actionable findings with severity, location, impact, and evidence. Resolve findings in implementation work, not by editing the review report to hide them.
